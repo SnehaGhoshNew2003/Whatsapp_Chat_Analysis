@@ -36,10 +36,14 @@ if uploaded_file is not None:
             st.title(num_links)
         st.title('Monthly Timeline')
         timeline = helper.monthly_timeline(selected_user,df)
-        fig,ax = plt.subplots()
-        ax.plot(timeline['time'],timeline['messages'],color = 'green')
-        plt.xticks(rotation = 'vertical')
-        st.pyplot(fig)
+        if not timeline.empty:
+           fig, ax = plt.subplots()
+           ax.plot(timeline['time'], timeline['messages'], color='green')
+           plt.xticks(rotation='vertical')
+           st.pyplot(fig)
+        else:
+           st.write("No data available to plot for the monthly timeline.")
+
         st.title('Daily Timeline')
         daily_timeline = helper.daily_timeline(selected_user, df)
         fig, ax = plt.subplots()

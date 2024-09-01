@@ -23,31 +23,37 @@ def most_busy_users(df):
         columns={'index': 'name', 'user': 'percent'})
     return x,df
 def create_wordcloud(selected_user, df):
-    f = open('bengali_stop_words.txt')
-    stop_words = f.read().splitlines()
-    f.close()  # Close the file after reading
+    # Load stop words
+    with open('bengali_stop_words.txt') as f:
+        stop_words = f.read().splitlines()
 
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]
 
+    # Filter out unwanted messages
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['messages'] != '<Media omitted>\n']
 
     def remove_stop_words(messages):
-        if isinstance(messages, str):  # Check if messages is a string
-            y = [word for word in messages.lower().split() if word not in stop_words]
-            return " ".join(y)
+        if isinstance(messages, str):  # Ensure the messages is a string
+            words = [word for word in messages.lower().split() if word not in stop_words]
+            return " ".join(words)
         return ""
 
     wc = WordCloud(width=500, height=500, min_font_size=20, background_color='white')
-    temp['messages'] = temp['messages'].astype(str)  # Ensure all messages are strings
-    temp['messages'] = temp['messages'].apply(remove_stop_words)
+    
+    # Convert all messages to strings and remove stop words
+    temp['messages'] = temp['messages'].astype(str).apply(remove_stop_words)
+    
+    # Concatenate all messages into a single string
     text = temp['messages'].str.cat(sep=" ")
 
-    if not text.strip():  # Check if text is empty or contains only whitespace
+    # Check if there's any text to generate the word cloud
+    if not text.strip():  # If text is empty or whitespace only
         print("No words to display in the word cloud.")
-        return WordCloud(width=500, height=500, background_color='white').generate('')  # Return empty word cloud
+        return WordCloud(width=500, height=500, background_color='white').generate('')  # Generate empty word cloud
 
+    # Generate and return the word cloud
     df_wc = wc.generate(text)
     return df_wc
 

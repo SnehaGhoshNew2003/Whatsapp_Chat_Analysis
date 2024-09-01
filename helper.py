@@ -23,39 +23,30 @@ def most_busy_users(df):
         columns={'index': 'name', 'user': 'percent'})
     return x,df
 def create_wordcloud(selected_user, df):
-    # Load stop words
-    with open('bengali_stop_words.txt') as f:
-        stop_words = f.read().splitlines()
-
+    f = open('bengali_stop_words.txt')
+    stop_words = f.read().splitlines()  # Ensure stop words are in a list
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]
-
-    # Filter out unwanted messages
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['messages'] != '<Media omitted>\n']
-
+    
     def remove_stop_words(messages):
-        if isinstance(messages, str):  # Ensure the messages is a string
-            words = [word for word in messages.lower().split() if word not in stop_words]
-            return " ".join(words)
-        return ""
+        y = [word for word in messages.lower().split() if word not in stop_words]
+        return " ".join(y)
+    
+    # Apply the stop words removal
+    temp['messages'] = temp['messages'].apply(remove_stop_words)
+    
+    # Check if there is any data left
+    all_messages = temp['messages'].str.cat(sep=" ")
+    if not all_messages:
+        print("Warning: No words left to generate word cloud.")
+        return WordCloud(width=500, height=500, min_font_size=20, background_color='white').generate("")  # Return empty word cloud
 
     wc = WordCloud(width=500, height=500, min_font_size=20, background_color='white')
-    
-    # Convert all messages to strings and remove stop words
-    temp['messages'] = temp['messages'].astype(str).apply(remove_stop_words)
-    
-    # Concatenate all messages into a single string
-    text = temp['messages'].str.cat(sep=" ")
-
-    # Check if there's any text to generate the word cloud
-    if not text.strip():  # If text is empty or whitespace only
-        print("No words to display in the word cloud.")
-        return WordCloud(width=500, height=500, background_color='white').generate('')  # Generate empty word cloud
-
-    # Generate and return the word cloud
-    df_wc = wc.generate(text)
+    df_wc = wc.generate(all_messages)
     return df_wc
+
 
 
 def most_common_words(selected_user, df):

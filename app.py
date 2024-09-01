@@ -12,11 +12,9 @@ if uploaded_file is not None:
     df = preprocessor.preprocess(data)
     # fetch unique users
     user_list = df['user'].unique().tolist()
-    if 'group_notification' in user_list:
-        user_list.remove('group_notification')
+    user_list.remove('group_notification')
     user_list.sort()
     user_list.insert(0, "overall")
-
     selected_user = st.sidebar.selectbox('Show analysis wrt', user_list)
     if st.sidebar.button('Show Analysis'):
         num_messages,words,num_media_messages,num_links = helper.fetch_stats(selected_user, df)
@@ -36,14 +34,10 @@ if uploaded_file is not None:
             st.title(num_links)
         st.title('Monthly Timeline')
         timeline = helper.monthly_timeline(selected_user,df)
-        if not timeline.empty:
-           fig, ax = plt.subplots()
-           ax.plot(timeline['time'], timeline['messages'], color='green')
-           plt.xticks(rotation='vertical')
-           st.pyplot(fig)
-        else:
-           st.write("No data available to plot for the monthly timeline.")
-
+        fig,ax = plt.subplots()
+        ax.plot(timeline['time'],timeline['messages'],color = 'green')
+        plt.xticks(rotation = 'vertical')
+        st.pyplot(fig)
         st.title('Daily Timeline')
         daily_timeline = helper.daily_timeline(selected_user, df)
         fig, ax = plt.subplots()
@@ -68,13 +62,9 @@ if uploaded_file is not None:
             st.pyplot(fig)
         st.title("Weekly Activity Map")
         user_heatmap = helper.activity_heatmap(selected_user, df)
-        if not user_heatmap.empty:
-           fig, ax = plt.subplots()
-           ax = sns.heatmap(user_heatmap)
-           st.pyplot(fig)
-        else:
-           st.write("No activity data available for heatmap.")
-
+        fig, ax = plt.subplots()
+        ax = sns.heatmap(user_heatmap)
+        st.pyplot(fig)
         if selected_user == 'overall':
             st.title('Most Busy Users')
             x,new_df = helper.most_busy_users(df)

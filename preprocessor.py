@@ -11,7 +11,7 @@ def preprocess(data):
     df = pd.DataFrame({'user_message': messages, 'message_date': dates})
 
     # Ensure the 'message_date' column is string before using str.replace
-    df['message_date'] = df['message_date'].astype(str).str.replace('\u202f', ' ')
+    df['message_date'] = df['message_date'].astype(str).fillna('').str.replace('\u202f', ' ')
 
     # Force datetime conversion and handle errors
     df['message_date'] = pd.to_datetime(df['message_date'], format='%d/%m/%y, %I:%M %p - ', errors='coerce')
@@ -54,7 +54,7 @@ def preprocess(data):
 
     # Create a period column
     period = []
-    for hour in df[['day_name', 'hour']]['hour']:
+    for hour in df['hour']:
         if hour == 23:
             period.append(str(hour) + "-" + str('00'))
         elif hour == 0:

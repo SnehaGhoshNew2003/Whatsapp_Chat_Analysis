@@ -22,67 +22,45 @@ def most_busy_users(df):
     df = round((df['user'].value_counts() / df.shape[0]) * 100, 2).reset_index().rename(
         columns={'index': 'name', 'user': 'percent'})
     return x,df
-def create_wordcloud(selected_user, df):
+def create_wordcloud(selected_user,df):
     f = open('bengali_stop_words.txt')
-    stop_words = f.read().splitlines()  # Ensure stop words are in a list
+    stop_words = f.read()
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['messages'] != '<Media omitted>\n']
-    
     def remove_stop_words(messages):
-        y = [word for word in messages.lower().split() if word not in stop_words]
+        y=[]
+        for word in messages.lower().split():
+            if word not in stop_words:
+                y.append(word)
         return " ".join(y)
-    
-    # Apply the stop words removal
+    wc = WordCloud(width = 500,height = 500,min_font_size = 20,background_color = 'white')
     temp['messages'] = temp['messages'].apply(remove_stop_words)
-    
-    # Check if there is any data left
-    all_messages = temp['messages'].str.cat(sep=" ")
-    if not all_messages:
-        print("Warning: No words left to generate word cloud.")
-        return WordCloud(width=500, height=500, min_font_size=20, background_color='white').generate("")  # Return empty word cloud
-
-    wc = WordCloud(width=500, height=500, min_font_size=20, background_color='white')
-    df_wc = wc.generate(all_messages)
+    df_wc = wc.generate(temp['messages'].str.cat(sep=" "))
     return df_wc
-
-
-
-def most_common_words(selected_user, df):
+def most_common_words(selected_user,df):
     f = open('bengali_stop_words.txt')
-    stop_words = f.read().splitlines()
-    f.close()  # Close the file after reading
-
+    stop_words = f.read()
     if selected_user.lower() != 'overall':
-        df = df[df['user'] == selected_user]
-
+        df = df[df['user']==selected_user]
     temp = df[df['user'] != 'group_notification']
     temp = temp[temp['messages'] != '<Media omitted>\n']
-
     words = []
-    for messages in temp['messages'].astype(str):  # Ensure messages are strings
-        words.extend([word for word in messages.lower().split() if word not in stop_words])
-
-    if not words:
-        print("No words to count.")
-        return pd.DataFrame(columns=['word', 'count'])  # Return empty DataFrame
-
-    most_common_df = pd.DataFrame(Counter(words).most_common(20), columns=['word', 'count'])
+    for messages in temp['messages']:
+        for word in messages.lower().split(','):
+            if word not in stop_words:
+                words.append(word)
+    most_common_df = pd.DataFrame(Counter(words).most_common(20))
     return most_common_df
-
-
-def emoji_helper(selected_user, df):
+def emoji_helper(selected_user,df):
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]
-
     emojis = []
-    for messages in df['messages'].astype(str):  # Ensure messages are strings
+    for messages in df['messages']:
         emojis.extend([c for c in messages if c in emoji.EMOJI_DATA])
-
     emoji_df = pd.DataFrame(Counter(emojis).most_common(len(Counter(emojis))))
     return emoji_df
-
 def monthly_timeline(selected_user,df):
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]

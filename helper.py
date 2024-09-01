@@ -92,4 +92,4 @@ def activity_heatmap(selected_user,df):
 
     user_heatmap = df.pivot_table(index='day_name', columns='period', values='messages', aggfunc='count').fillna(0)
 
-    return user_heatmap
+    return user_heatmap 

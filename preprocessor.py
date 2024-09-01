@@ -1,3 +1,5 @@
+import pandas as pd
+import re
 def preprocess(data):
     pattern = r'\d{2}/\d{2}/\d{2}, \d{1,2}:\d{2}\u202f(?:AM|PM|am|pm) -\s'
     messages = re.split(pattern, data)[1:]

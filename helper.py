@@ -25,7 +25,7 @@ def most_busy_users(df):
 def create_wordcloud(selected_user, df):
     f = open('bengali_stop_words.txt')
     stop_words = f.read().splitlines()
-    f.close()  # Remember to close the file after reading
+    f.close()  # Close the file after reading
 
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]
@@ -42,13 +42,20 @@ def create_wordcloud(selected_user, df):
     wc = WordCloud(width=500, height=500, min_font_size=20, background_color='white')
     temp['messages'] = temp['messages'].astype(str)  # Ensure all messages are strings
     temp['messages'] = temp['messages'].apply(remove_stop_words)
-    df_wc = wc.generate(temp['messages'].str.cat(sep=" "))
+    text = temp['messages'].str.cat(sep=" ")
+
+    if not text.strip():  # Check if text is empty or contains only whitespace
+        print("No words to display in the word cloud.")
+        return WordCloud(width=500, height=500, background_color='white').generate('')  # Return empty word cloud
+
+    df_wc = wc.generate(text)
     return df_wc
+
 
 def most_common_words(selected_user, df):
     f = open('bengali_stop_words.txt')
     stop_words = f.read().splitlines()
-    f.close()  # Remember to close the file after reading
+    f.close()  # Close the file after reading
 
     if selected_user.lower() != 'overall':
         df = df[df['user'] == selected_user]
@@ -60,8 +67,13 @@ def most_common_words(selected_user, df):
     for messages in temp['messages'].astype(str):  # Ensure messages are strings
         words.extend([word for word in messages.lower().split() if word not in stop_words])
 
-    most_common_df = pd.DataFrame(Counter(words).most_common(20))
+    if not words:
+        print("No words to count.")
+        return pd.DataFrame(columns=['word', 'count'])  # Return empty DataFrame
+
+    most_common_df = pd.DataFrame(Counter(words).most_common(20), columns=['word', 'count'])
     return most_common_df
+
 
 def emoji_helper(selected_user, df):
     if selected_user.lower() != 'overall':

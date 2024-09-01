@@ -35,8 +35,12 @@ def preprocess(data):
             users.append(entry[1])
             messages.append(entry[2])
         else:  # System message or error
-            users.append('group_notification')
-            messages.append(entry[0])
+            user_list = df['user'].unique().tolist()
+            if 'group_notification' in user_list:
+                  user_list.remove('group_notification')
+                  user_list.sort()
+                  user_list.insert(0, "overall")
+
 
     df['user'] = users
     df['messages'] = messages

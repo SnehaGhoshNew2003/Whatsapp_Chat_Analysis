@@ -10,9 +10,9 @@ def preprocess(data):
     # Create a DataFrame
     df = pd.DataFrame({'user_message': messages, 'message_date': dates})
 
-    # Replace special unicode characters and convert to datetime
-    df['message_date'] = df['message_date'].str.replace('\u202f', ' ')
-    
+    # Ensure the 'message_date' column is string before using str.replace
+    df['message_date'] = df['message_date'].astype(str).str.replace('\u202f', ' ')
+
     # Force datetime conversion and handle errors
     df['message_date'] = pd.to_datetime(df['message_date'], format='%d/%m/%y, %I:%M %p - ', errors='coerce')
     

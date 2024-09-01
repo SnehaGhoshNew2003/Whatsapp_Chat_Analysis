@@ -20,6 +20,7 @@ def preprocess(data):
             messages.append(entry[0])
     df['user'] = users
     df['messages'] = messages
+    df['messages'] = df['messages'].astype(str)
     df.drop(columns=['user_message'], inplace=True)
     df['year'] = df['date'].dt.year
     df['month_num'] = df['date'].dt.month
